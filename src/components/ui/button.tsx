@@ -70,7 +70,7 @@ const Button: React.FC<ButtonProps> = ({
   };
 
   const sizeClasses = {
-    small: 'h-9 min-w-9 text-sm px-[14px] gap-2"',
+    small: 'h-9 min-w-9 text-sm px-[14px] gap-2 ',
     medium: 'h-10 min-w-10 text-sm px-4 gap-2',
     large: 'h-11 min-w-11 text-md px-[18px] gap-',
     xlarge: 'h-12 min-w-12 text-md px-5 gap-[10px]'

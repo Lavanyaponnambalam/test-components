@@ -11,6 +11,8 @@ import Search from "./components/ui/seacrh";
 import DatePicker from "./components/ui/date-picker";
 import Radio from "./components/ui/radiobutton";
 import Checkbox from "./components/ui/checkbox";
+import Dropdown from "./components/ui/dropdown";
+import FileUpload from "./components/ui/file-upload";
 
 function App() {
   return (
@@ -588,12 +590,10 @@ function App() {
           <DatePicker label="Label" type="date-field" size="lg" />
           <DatePicker label="Label" type="date-field" size="lg" isDisabled />
           </div>
-
-
           <div className="flex gap-5 mb-8">
-          <DatePicker label="Select Time" type="time-field" size="md" isError />
-</div>
+          <div className="space-y-4 p-8">
 
+          <DatePicker label="Select Time" type="time-field" size="md" isError />
           {/* <div className="flex gap-5 mb-8">
               <div className="space-y-4 p-8">
               <div className="flex gap-5 mb-8">
@@ -618,9 +618,55 @@ function App() {
                 size="lg"
                 description="Choose a convenient time."
               /> */}
+</div>
+</div>
 
+<div className="flex gap-5 mb-8">
 
-        <div className="flex gap-10 mb-8">
+<Dropdown
+  label="Select an option"
+  size="sm"
+  options={[
+    { value: "apple", label: "Apple" },
+    { value: "banana", label: "Banana" },
+    { value: "cherry", label: "Cherry" },
+  ]}
+  isError={false}
+  isDisabled={false}
+  isFilled={true}
+/>
+<Dropdown
+  label="Select an option"
+  size="md"
+  options={[
+    { value: "apple", label: "Apple" },
+    { value: "banana", label: "Banana" },
+    { value: "cherry", label: "Cherry" },
+  ]}
+  isError={false}
+  isDisabled={false}
+  isFilled={true}
+/>
+<Dropdown
+  label="Select an option"
+  size="lg"
+  options={[
+    { value: "apple", label: "Apple" },
+    { value: "banana", label: "Banana" },
+    { value: "cherry", label: "Cherry" },
+  ]}
+  isError={false}
+  isDisabled={false}
+  isFilled={true}
+/>
+</div>
+<div className="p-6">
+      <FileUpload size="sm" label="Label" description="Uploade file" />
+      <FileUpload size="md" label="Upload multiple files" isMultiple description="You can select multiple files" />
+      <FileUpload size="lg" label="Upload multiple files" isMultiple description="You can select multiple files" />
+
+    </div>
+<div className="flex gap-5 mb-8">
 
       {/* Filled Radio */}
 <div className="space-y-2">
@@ -658,6 +704,9 @@ function App() {
 />
 </div>
 </div>
+
+
+
       </div>
     </div>
   );

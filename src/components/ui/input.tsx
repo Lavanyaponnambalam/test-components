@@ -185,7 +185,7 @@ const Input: React.FC<InputProps> = ({
               addonSizeClasses[size as keyof typeof addonSizeClasses]
             }`}
           >
-            <select className="border-none bg-transparent text-fg-neutral-primary focus:outline-none appearance-none w-full">
+            <select className="border-none bg-transparent text-fg-neutral-primary focus:outline-none appearance-none w-full ">
               {options?.map((option) => (
                 <option key={option.value} value={option.value}>
                   {option.label}

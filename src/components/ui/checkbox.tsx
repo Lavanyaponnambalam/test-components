@@ -42,7 +42,7 @@ const Checkbox: React.FC<CheckboxProps> = ({
     if (checked || isIndeterminate) {
       return 'bg-action-brand-normal text-action-fg-base-white';
     }
-    return 'bg-white border-gray-400 hover:border-gray-500 focus:outline-none focus:ring-2 focus:ring-blue-400';
+    return 'bg-white border-gray-400 hover:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-400';
   })();
 
   const containerClasses = description
@@ -50,7 +50,7 @@ const Checkbox: React.FC<CheckboxProps> = ({
     : 'w-[129px] h-[36px] py-2 gap-2 mt-2';
 
   const wrapperClasses = applyBorder
-    ? 'border border-gray-300 rounded-md p-3 w-[258px] h-[68px] gap-3'
+    ? 'border border-gray-300 rounded-sm p-3 w-[258px] h-[68px] gap-3'
     : '';
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
