@@ -1,5 +1,6 @@
 import {
   CalendarDots,
+  CaretDown,
   MagnifyingGlass,
   Rocket,
   UserCircle,
@@ -525,11 +526,11 @@ function App() {
 
             {/* Plus & Minus Button */}
 
-            <div className="flex gap-5 mb-8">
+            {/* <div className="flex gap-5 mb-8">
               <Input inputType="plus-minus" />
 
               <Input inputType="plus-minus"></Input>
-            </div>
+            </div> */}
           </div>
         </div>
 
@@ -590,42 +591,34 @@ function App() {
           <DatePicker label="Label" type="date-field" size="lg" />
           <DatePicker label="Label" type="date-field" size="lg" isDisabled />
           </div>
-          <div className="flex gap-5 mb-8">
-          <div className="space-y-4 p-8">
+          <div className="flex gap-2 mb-8">
+          <DatePicker label="Select Time" type="time-field" size="sm" />
+          <DatePicker label="Select Time" type="time-field" size="md" />
+          <DatePicker label="Select Time" type="time-field" size="lg" />
+          <DatePicker label="Select Time" type="time-field" size="lg" isDisabled />
+          </div>
 
-          <DatePicker label="Select Time" type="time-field" size="md" isError />
-          {/* <div className="flex gap-5 mb-8">
-              <div className="space-y-4 p-8">
-              <div className="flex gap-5 mb-8">
-              <DatePicker
-                label="Select Time"
-                type="time-field"
-                size="md"
-                isError
-              />
-              </div>
-              </div>
-              </div>
-              <DatePicker
-                label="Disabled Date"
-                type="date-select"
-                size="lg"
-                isDisabled
-              />
-              <DatePicker
-                label="Select Time"
-                type="time-select"
-                size="lg"
-                description="Choose a convenient time."
-              /> */}
-</div>
-</div>
+          <div className="flex gap-5 mb-8">
+          <DatePicker type="time-select" size="sm"/>
+          <DatePicker type="time-select" size="md"/>
+          <DatePicker type="time-select" size="lg"/>
+          <DatePicker type="time-select" size="lg" isDisabled/>
+
+          </div>
+          <div className="flex gap-8 mb-8">
+          <DatePicker type="date-select" size="sm"/>
+          <DatePicker type="date-select" size="md"/>
+          <DatePicker type="date-select" size="lg"/>
+          <DatePicker type="date-select" size="lg" isDisabled/>
+
+          </div>
 
 <div className="flex gap-5 mb-8">
 
 <Dropdown
   label="Select an option"
   size="sm"
+  
   options={[
     { value: "apple", label: "Apple" },
     { value: "banana", label: "Banana" },
@@ -649,6 +642,7 @@ function App() {
 />
 <Dropdown
   label="Select an option"
+  rightIcon={<CaretDown size={24}/>}
   size="lg"
   options={[
     { value: "apple", label: "Apple" },
@@ -660,10 +654,17 @@ function App() {
   isFilled={true}
 />
 </div>
-<div className="p-6">
+<div className="flex gap-5 mb-8">
       <FileUpload size="sm" label="Label" description="Uploade file" />
       <FileUpload size="md" label="Upload multiple files" isMultiple description="You can select multiple files" />
-      <FileUpload size="lg" label="Upload multiple files" isMultiple description="You can select multiple files" />
+      <FileUpload size="lg" type="field" label="Upload multiple files" isMultiple description="You can select multiple files" />
+    </div>
+    <div className="flex gap-5 mb-8">
+
+    <FileUpload size="lg" type="area" label="Upload multiple files"  description="You can select multiple files" />
+    <FileUpload size="lg" type="area" label="Upload multiple files"  description="You can select multiple files" />
+    <FileUpload size="lg" type="area" label="Upload multiple files"  description="You can select multiple files" />
+
 
     </div>
 <div className="flex gap-5 mb-8">
