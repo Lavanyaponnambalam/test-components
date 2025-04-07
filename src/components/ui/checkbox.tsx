@@ -1,13 +1,17 @@
+import { Check, Minus } from '@phosphor-icons/react';
 import React, { useState, useEffect, useRef } from 'react';
 
-type CheckboxProps = React.InputHTMLAttributes<HTMLInputElement> & {
+type CheckboxProps = Omit<React.InputHTMLAttributes<HTMLInputElement>, 'value'> & {
   isError?: boolean;
   isDisabled?: boolean;
   label?: string;
   description?: string;
   applyBorder?: boolean;
   isIndeterminate?: boolean;
-  value?: string; 
+  value?: string | number;
+  checked?: boolean; // controlled
+  defaultChecked?: boolean; // uncontrolled
+  onChange?: (e: React.ChangeEvent<HTMLInputElement>) => void;
 };
 
 const Checkbox: React.FC<CheckboxProps> = ({
@@ -18,28 +22,41 @@ const Checkbox: React.FC<CheckboxProps> = ({
   description,
   id,
   applyBorder = false,
-  value, 
+  value,
+  checked,
+  defaultChecked,
+  onChange,
   ...props
 }) => {
-  const [checked, setChecked] = useState<boolean>(false);
   const checkboxRef = useRef<HTMLInputElement>(null);
+  const [internalChecked, setInternalChecked] = useState(defaultChecked || false);
+
+  const isControlled = checked !== undefined;
+  const currentChecked = isControlled ? checked : internalChecked;
 
   useEffect(() => {
-    if (checkboxRef.current && isIndeterminate) {
-      checkboxRef.current.indeterminate = true;
+    if (checkboxRef.current) {
+      checkboxRef.current.indeterminate = isIndeterminate;
     }
   }, [isIndeterminate]);
+
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    if (!isControlled) {
+      setInternalChecked(e.target.checked);
+    }
+    onChange?.(e);
+  };
 
   const baseStyles = 'transition-colors cursor-pointer flex items-center';
 
   const stateClasses = (() => {
     if (isDisabled) {
-        return 'bg-action-neutral-light_disabled border-action-border-neutral-light_disabled opacity-50 cursor-not-allowed';
+      return 'bg-action-neutral-light_disabled border-action-border-neutral-light_disabled opacity-50 cursor-not-allowed';
     }
     if (isError) {
-        return 'border-action-border-error-normal bg-action-base-white';
+      return 'border-action-border-error-normal bg-action-base-white';
     }
-    if (checked || isIndeterminate) {
+    if (currentChecked || isIndeterminate) {
       return 'bg-action-brand-normal text-action-fg-base-white';
     }
     return 'bg-white border-gray-400 hover:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-400';
@@ -53,17 +70,10 @@ const Checkbox: React.FC<CheckboxProps> = ({
     ? 'border border-gray-300 rounded-sm p-3 w-[258px] h-[68px] gap-3'
     : '';
 
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setChecked(e.target.checked);
-  };
-
   return (
     <div className={`${containerClasses} ${wrapperClasses}`}>
       {label && (
-        <label
-          htmlFor={id}
-          className="block text-sm font-medium text-gray-800"
-        >
+        <label htmlFor={id} className="block text-md font-medium text-fg-neutral-primary">
           {label}
         </label>
       )}
@@ -78,33 +88,36 @@ const Checkbox: React.FC<CheckboxProps> = ({
             ref={checkboxRef}
             className={`${baseStyles} w-[20px] h-[20px] appearance-none`}
             disabled={isDisabled}
-            checked={checked}
+            checked={currentChecked}
             onChange={handleChange}
+            value={value}
             {...props}
           />
+
           {!isDisabled && (
-            <span className={`absolute text-[12px] text-white`}>
-              {checked ? '✓' : isIndeterminate ? '-' : ''}
+            <span className="absolute pointer-events-none text-[12px] text-action-fg-base-white">
+              {isIndeterminate ? (
+                <Minus weight="bold" size={12} />
+              ) : currentChecked ? (
+                <Check weight="bold" size={12} />
+              ) : null}
             </span>
           )}
         </div>
 
         {value && (
-          <label
-            htmlFor={id}
-            className="text-sm font-medium text-gray-800 cursor-pointer"
-          >
-            {value} 
+          <label htmlFor={id} className="text-md font-medium text-fg-neutral-primary cursor-pointer">
+            {value}
           </label>
         )}
       </div>
 
       {description && (
-        <p className="text-sm text-gray-600 mt-1 pl-[28px]">{description}</p>
+        <p className="text-md text-fg-neutral-secondary mt-1 pl-[28px]">{description}</p>
       )}
 
       {isError && (
-        <p className="text-sm text-red-500 mt-1">Validation text of warning</p>
+        <p className="text-md text-fg-error-secondary mt-1">Validation text of warning</p>
       )}
     </div>
   );

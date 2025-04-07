@@ -1,114 +1,77 @@
-import React from 'react';
+import React from "react";
+import * as PhosphorIcons from "@phosphor-icons/react";
 
-type ButtonProps = React.ButtonHTMLAttributes<HTMLButtonElement> & {
-  variant?: 'primary' | 'primary_soft' | 'secondary' | 'neutral' | 'tertiary' | 'danger' | 'danger_soft';
-  size?: 'small' | 'medium' | 'large' | 'xlarge';
-  isLoading?: boolean;
-  isDisabled?: boolean;
-  iconLeft?: React.ReactNode;
-  iconRight?: React.ReactNode;
-  iconOnly?: React.ReactNode;
-  className?: string; 
+type ButtonCategory =
+  | "primary"
+  | "primary-soft"
+  | "danger"
+  | "danger-soft"
+  | "secondary"
+  | "neutral"
+  | "tertiary";
+
+type ButtonSize = "sm" | "md" | "lg" | "xlg";
+
+type ButtonProps = {
+  category?: ButtonCategory;
+  size?: ButtonSize;
+  icon?: keyof typeof PhosphorIcons;
+  iconPosition?: "left" | "right";
+  disabled?: boolean;
+  children: React.ReactNode;
+  onClick: (e: React.FormEvent) => void;
+};
+
+const categoryStyles: Record<ButtonCategory, string> = {
+  primary:
+    "bg-action-brand-normal text-action-fg-base-white hover:bg-action-brand-hover hover:border hover:border-1 hover:border-action-fg-base-white active:bg-action-brand-active active:border active:border-1 active:border-action-fg-base-white active:shadow-[inset_0px_2px_12px_1px_#0000001A] disabled:bg-action-neutral-disabled disabled:text-action-fg-base-white disabled:cursor-not-allowed focus:outline-none focus:outline-2 focus:border-transparent focus:shadow-[inset_0px_2px_12px_1px_#0000001A] w-full",
+  "primary-soft":
+    "bg-action-brand-light_normal text-fg-brand-primary hover:bg-action-brand-light_hover hover:text-action-fg-brand-normal outline-none text-action-fg-brand-normal active:shadow-[inset_0px_2px_12px_1px_#0000001A] disabled:bg-action-neutral-disabled disabled:text-action-fg-base-white disabled:cursor-not-allowed",
+  secondary:
+    "text-action-fg-neutral-normal border border-action-border-neutral-light_normal hover:bg-action-neutral-light_hover hover:text-action-fg-neutral-normal outline-none text-action-fg-neutral-normal active:shadow-[inset_0px_2px_12px_1px_#0000001A] disabled:text-action-fg-neutral-disabled disabled:border-action-border-neutral-light_normal disabled:cursor-not-allowed",
+  neutral:
+    "bg-action-neutral-light_normal text-action-fg-neutral-normal hover:bg-action-neutral-light_hover hover:text-action-fg-neutral-normal outline-none text-action-fg-neutral-normal active:shadow-[inset_0px_2px_12px_1px_#0000001A] disabled:bg-action-neutral-disabled disabled:text-action-fg-base-white disabled:cursor-not-allowed",
+  tertiary: "text-action-fg-neutral-normal hover:bg-action-neutral-light_hover hover:text-action-fg-neutral-normal  outline-none text-action-fg-neutral-normal active:shadow-[inset_0px_2px_12px_1px_#0000001A] disabled:text-action-fg-neutral-disabled disabled:cursor-not-allowed ",
+  danger:"bg-action-error-normal text-action-fg-base-white hover:bg-action-error-hover hover:text-action-fg-base-white  active:shadow-[inset_0px_2px_12px_1px_#0000001A] disabled:bg-action-neutral-disabled disabled:text-action-fg-base-white disabled:cursor-not-allowed",
+  "danger-soft": "bg-action-error-light_normal text-fg-error-secondary hover:bg-action-error-light_hover hover:text-fg-error-secondary outline-none focus:outline-error-light-normal text-error-normal active:shadow-[inset_0px_2px_12px_1px_#0000001A] disabled:bg-action-neutral-disabled disabled:text-action-fg-base-white disabled:cursor-not-allowed",
 };
 
 const Button: React.FC<ButtonProps> = ({
-  variant = 'primary',
-  size = 'medium',
-  isLoading = false,
-  isDisabled = false,
+  category = "primary",
+  size = "md",
+  icon,
+  iconPosition,
+  disabled = false,
   children,
-  iconLeft,
-  iconRight,
-  iconOnly,
-  className = '', 
-  ...props
+  onClick,
 }) => {
   const baseStyles =
-    'font-medium py-2 px-4 rounded-sm transition duration-200 ease-in-out inline-flex items-center justify-center gap-2';
-  
-  const variantClasses = {
-    primary: {
-      background: 'bg-action-brand-normal text-action-fg-base-white',
-      hover: 'hover:bg-action-brand-hover hover:text-action-fg-base-white',
-      focused: 'focus:outline-2 text-action-fg-base-white active:shadow-[inset_0px_2px_12px_1px_#0000001A]',
-      disabled: 'disabled:bg-action-neutral-disabled disabled:text-action-fg-base-white disabled:cursor-not-allowed',
-    },
-    primary_soft: {
-      background: 'bg-action-brand-light_normal text-action-fg-brand-normal',
-      hover: 'hover:bg-action-brand-light_hover hover:text-action-fg-brand-normal',
-      focused: 'focus:outline-2 text-action-fg-brand-normal active:shadow-[inset_0px_2px_12px_1px_#0000001A]',
-      disabled: 'disabled:bg-action-neutral-disabled disabled:text-action-fg-base-white disabled:cursor-not-allowed',
-    },
-    secondary: {
-      background: 'text-action-fg-neutral-normal border border-action-border-neutral-light_normal',
-      hover: 'hover:bg-action-neutral-light_hover hover:text-action-fg-neutral-normal',
-      focused: 'focus:outline-2 text-action-fg-neutral-normal active:shadow-[inset_0px_2px_12px_1px_#0000001A]',
-      disabled: 'disabled:text-action-fg-neutral-disabled disabled:border-action-border-neutral-light_normal disabled:cursor-not-allowed',
-    },
-    neutral: {
-      background: 'bg-action-neutral-light_normal text-action-fg-neutral-normal',
-      hover: 'hover:bg-action-neutral-light_hover hover:text-action-fg-neutral-normal',
-      focused: 'focus:outline-2 text-action-fg-neutral-normal active:shadow-[inset_0px_2px_12px_1px_#0000001A]',
-      disabled: 'disabled:bg-action-neutral-disabled disabled:text-action-fg-base-white disabled:cursor-not-allowed',
-    },
-    tertiary: {
-      background: 'text-action-fg-neutral-normal',
-      hover: 'hover:bg-action-neutral-light_hover hover:text-action-fg-neutral-normal',
-      focused: 'focus:outline-2 text-action-fg-neutral-normal active:shadow-[inset_0px_2px_12px_1px_#0000001A]',
-      disabled: 'disabled:text-action-fg-neutral-disabled disabled:cursor-not-allowed',
-    },
-    danger: {
-      background: 'bg-action-error-normal text-action-fg-base-white',
-      hover: 'hover:bg-action-error-hover hover:text-action-fg-base-white',
-      focused: 'focus:outline-2 active:shadow-[inset_0px_2px_12px_1px_#0000001A]',
-      disabled: 'disabled:bg-action-neutral-disabled disabled:text-action-fg-base-white disabled:cursor-not-allowed',
-    },
-    danger_soft: {
-      background: 'bg-action-error-light_normal text-fg-error-secondary',
-      hover: 'hover:bg-action-error-light_hover hover:text-fg-error-secondary',
-      focused: 'focus:outline-2 focus:outline-error-light-normal text-error-normal active:shadow-[inset_0px_2px_12px_1px_#0000001A]',
-      disabled: 'disabled:bg-action-neutral-disabled disabled:text-action-fg-base-white disabled:cursor-not-allowed',
-    },
+    "inline-flex items-center justify-center font-normal rounded-[7px] transition-all duration-200 focus:outline-none";
+  const sizeStyles = {
+    sm: "min-w-fit px-3 py-1.5 text-sm",
+    md: "p-[10px] text-sm",
+    lg: "px-6 py-3 text-md",
+    xlg: " px-7 py-4 text-md",
   };
 
-  const sizeClasses = {
-    small: 'h-9 min-w-9 text-sm px-2 py-1',
-    medium: 'h-10 min-w-10 text-sm px-4',
-    large: 'h-11 min-w-11 text-md px-[18px]',
-    xlarge: 'h-12 min-w-12 text-md px-5 gap-[10px]',
-  };
-
-  const loadingClasses = isLoading ? 'opacity-50 cursor-wait' : '';
-  const disabledClasses = isDisabled ? 'opacity-30 cursor-not-allowed' : '';
-
-  const { background, hover, focused, disabled } = variantClasses[variant];
-
-  const buttonClassNames = [
-    baseStyles,
-    background,
-    hover,
-    focused,
-    isDisabled ? disabled : '',
-    sizeClasses[size],
-    loadingClasses,
-    disabledClasses,
-    className, 
-  ]
-    .filter(Boolean)
-    .join(' ');
+  const IconComponent = icon
+    ? (PhosphorIcons[icon as keyof typeof PhosphorIcons] as React.ElementType)
+    : null;
 
   return (
-    <button className={buttonClassNames} disabled={isLoading || isDisabled} {...props}>
-      {isLoading ? (
-        'Loading...'
-      ) : iconOnly ? (
-        iconOnly
-      ) : (
-        <>
-          {iconLeft && <span>{iconLeft}</span>}
-          {children}
-          {iconRight && <span>{iconRight}</span>}
-        </>
+    <button
+      className={`${baseStyles} ${sizeStyles[size]} ${
+        categoryStyles[category]
+      } ${disabled ? "cursor-not-allowed opacity-50" : ""} `}
+      onClick={onClick}
+      disabled={disabled}
+    >
+      {IconComponent && iconPosition === "left" && (
+        <IconComponent size={20} className="mr-[10px] " />
+      )}
+      {children}
+      {IconComponent && iconPosition === "right" && (
+        <IconComponent size={20} className="ml-[10px]" />
       )}
     </button>
   );

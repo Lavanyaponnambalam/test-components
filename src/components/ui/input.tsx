@@ -1,270 +1,313 @@
-import React, { useState } from "react";
+import { Warning } from "@phosphor-icons/react";
+import React, { useState, useEffect } from "react";
 
-type InputType =
-  | "basic"
-  | "addon-left"
-  | "addon-right"
-  | "select-left"
-  | "select-right"
-  | "plus-minus";
-type InputSize = "small" | "medium" | "large";
-
-type InputOption = {
-  label: string;
-  description?: string;
-  value: string | number;
-};
-
-type InputProps = React.InputHTMLAttributes<HTMLInputElement> & {
-  inputType?: InputType;
-  size?: InputSize;
-  isError?: boolean;
-  isDisabled?: boolean;
-  leftIcon?: React.ReactNode;
-  rightIcon?: React.ReactNode;
-  leftAddon?: React.ReactNode;
-  rightAddon?: React.ReactNode;
+interface InputProps {
   label?: string;
-  description?: string;
-  options?: InputOption[];
-};
+  value: string;
+  onChange: (value: string) => void;
+  placeholder?: string;
+  type?:
+    | "text"
+    | "textarea"
+    | "tel"
+    | "email"
+    | "password"
+    | "age"
+    | "number"
+    | "aadhaar";
+  variant?: "default" | "outlined" | "filled";
+  maxChar?: number;
+  required?: boolean;
+  className?: string;
+  disabled?: boolean;
+}
 
-const sizeClasses: Record<InputSize, string> = {
-  small: "h-9 text-sm w-96 h-xl rounded-xs ",
-  medium: "h-10 text-md w-96 h-2xl rounded-sm",
-  large: "h-12 text-lg w-96 h-3xl rounded-sm",
-};
-
-const iconSizeClasses: Record<InputSize, string> = {
-  small: "w-5 h-5 ",
-  medium: "w-6 h-6",
-  large: "w-6 h-6",
-};
-
-const paddingClasses: Record<InputSize, string> = {
-  small: "pl-10 pr-3",
-  medium: "pl-12 pr-4",
-  large: "pl-14 pr-5",
-};
-
-const addonSizeClasses: Record<InputSize, string> = {
-  small: "h-9 w-fit gap-1 px-2 text-sm flex-shrink-0",
-  medium: "h-10 w-fit gap-1 px-4 text-md flex-shrink-0",
-  large: "h-12 w-fit gap-1 px-4 text-lg flex-shrink-0",
-};
-
-const stateClasses = {
+const inputStyles = {
   default:
-    "border action-border-neutral-light_normal bg-action-base-white hover:border-action-border-neutral-light_hover focus:outline-none focus:ring-2 focus:ring-action-border-brand-normal",
-  error: "border action-border-error-normal bg-action-base-white",
-  disabled:
-    "bg-action-neutral-light_disabled border action-border-neutral-light_disabled opacity-50 cursor-not-allowed",
+    "bg-action-base-white text-base text-black border border-action-border-neutral-light_normal focus:ring-gray-600 focus:border-gray-300 ",
+  outlined:
+    "bg-white text-sm text-black border border-action-border-neutral-light_normal focus:ring-gray-500 focus:border-transparent",
   filled:
-    "border border-action-border-neutral-light_normal text-fg-neutral-primary",
+    "bg-white text-sm text-black border border-transparent focus:ring-transparent focus:border-transparent ",
 };
 
-const Input: React.FC<InputProps> = ({
-  inputType = "basic",
-  size = "medium",
-  isError = false,
-  isDisabled = false,
-  leftIcon,
-  rightIcon,
-  leftAddon,
-  rightAddon,
+const validateInput = (value: string = "", type: string) => {
+  switch (type) {
+    case "aadhaar":
+      const aadhaarRegex = /^[0-9]{12}$/;
+      if (value.trim() === "") {
+        return "This field cannot be empty";
+      }
+      return aadhaarRegex.test(value)
+        ? ""
+        : "Please enter a valid 12-digit Aadhaar number.";
+    case "email":
+      const emailRegex = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
+      if (value.trim() === "") {
+        return "This field cannot be empty";
+      }
+      return emailRegex.test(value) ? "" : "Please enter a valid email address";
+    case "tel":
+      const phoneRegex = /^[0-9]{10}$/;
+      if (value.trim() === "") {
+        return "This field cannot be empty";
+      }
+      return phoneRegex.test(value)
+        ? ""
+        : "Please enter a 10-digit phone number.";
+    case "password":
+      if (value.trim() === "") {
+        return "This field cannot be empty";
+      }
+      return value.length >= 6
+        ? ""
+        : "Password must be at least 6 characters long";
+    case "age":
+      if (value.trim() === "") {
+        return "This field cannot be empty";
+      }
+      const numberRegex = /^[0-9]+$/;
+      if (!numberRegex.test(value)) {
+        return "Please enter a valid number";
+      }
+
+      const age = parseInt(value, 10);
+      if (isNaN(age)) {
+        return "Please enter a valid age";
+      }
+
+      if (age < 10 || age > 99) {
+        return "Please enter a valid age";
+      }
+      return "";
+    case "text":
+    case "textarea":
+      return value.trim() === "" ? "This field cannot be empty" : "";
+    case "number":
+      if (value.trim() === "") {
+        return "This field cannot be empty";
+      }
+      return value.length > 0 ? "" : "Please enter a valid number";
+    default:
+      return "";
+  }
+};
+
+export const InputField = ({
   label,
-  description,
+  value = "",
+  onChange,
+  placeholder = "Type here",
+  type = "text",
+  variant = "default",
+  maxChar,
+  required,
   className,
-  value,
-  options = [],
-  ...props
-}) => {
-  const [currentValue, setCurrentValue] = useState<number>(Number(value) || 0);
+  disabled = false,
+}: InputProps) => {
+  const [error, setError] = useState<string>("");
+  const [isTouched, setIsTouched] = useState<boolean>(false);
 
-  const handleIncrement = () => {
-    if (!isDisabled) setCurrentValue((prev) => prev + 1);
-  };
+  const baseStyles =
+    "block px-3 py-[8.5px] w-full text-base font-normal rounded-sm focus:outline-action-border-brand-normal ";
+  const appliedStyles = `${baseStyles} ${inputStyles[variant]} ${
+    disabled
+      ? " placeholder:text-fg-neutral-secondary cursor-not-allowed "
+      : " placeholder:text-fg-neutral-secondary hover:border-action-border-neutral-light_hover"
+  }`;
 
-  const handleDecrement = () => {
-    if (!isDisabled) setCurrentValue((prev) => prev - 1);
-  };
+  useEffect(() => {
+    console.log("Current value:", value); // Debugging line
 
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const newValue = Number(e.target.value);
-    if (!isNaN(newValue)) {
-      setCurrentValue(newValue);
+    if (isTouched) {
+      const validationError = validateInput(value, type);
+      setError(validationError);
+    }
+
+    if (value === "") {
+      setError("");
+    }
+  }, [value, type, isTouched]);
+
+  const handleChange = (
+    e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
+  ) => {
+    const newValue = e.target.value;
+
+    if (
+      (type === "tel" ||
+        type === "number" ||
+        type === "age" || 
+        type === "aadhaar"
+        ) &&
+      /[^0-9]/.test(newValue)
+    ) {
+      return;
+    }
+
+
+    if (maxChar && newValue.length <= maxChar) {
+      onChange(newValue);
+    } else if (!maxChar) {
+      onChange(newValue);
     }
   };
 
-  const stateClass = isDisabled
-    ? stateClasses.disabled
-    : isError
-    ? stateClasses.error
-    : value
-    ? stateClasses.filled
-    : stateClasses.default;
-
-    const plusMinusInputSizeClasses: Record<InputSize, string> = {
-      small: "w-44  h-12 text-sm",
-      medium: "w-14 h-10 text-md",
-      large: "w-16 h-12 text-lg",
+  const handleKeyPress = (
+    e: React.KeyboardEvent<HTMLInputElement | HTMLTextAreaElement>
+  ) => {
+    if (
+      (type === "tel" || type === "number" || type === "age" || type === "aadhaar") &&
+      !/[0-9]/.test(e.key)
+    ) {
+      e.preventDefault();
     }
-  
-  
+  };
+
+  const handleFocus = () => {
+    setIsTouched(true);
+  };
 
   return (
-    <div className="full">
+    <div className={`flex flex-col ${className}`}>
       {label && (
-        <label className="block mb-1 text-sm font-medium text-fg-neutral-secondary">
-          {label}
+        <label
+          className={`text-sm font-medium mb-2
+            text-fg-neutral-secondary
+          `}
+        >
+          {label}{" "}
+          <span className="text-fg-error-primary">
+            {required ? "*" : ""}
+          </span>
         </label>
       )}
-      {description && (
-        <p className="block mb-1 text-sm font-medium text-fg-neutral-tertiary">
-          {description}
+
+      {type === "textarea" ? (
+        <textarea
+          rows={4}
+          value={value}
+          onChange={handleChange}
+          className={`${appliedStyles} h-32 resize-none`}
+          placeholder={placeholder}
+          maxLength={maxChar}
+          required={required}
+          disabled={disabled}
+          onFocus={handleFocus}
+        />
+      ) : null}
+
+      {type === "text" ? (
+        <input
+          type="text"
+          value={value}
+          onChange={handleChange}
+          className={appliedStyles}
+          placeholder={placeholder}
+          required={required}
+          disabled={disabled}
+          onFocus={handleFocus}
+          onKeyPress={handleKeyPress}
+        />
+      ) : null}
+
+      {type === "tel" ? (
+        <input
+          type="tel"
+          value={value}
+          onChange={handleChange}
+          className={appliedStyles}
+          placeholder={placeholder}
+          required={required}
+          disabled={disabled}
+          onFocus={handleFocus}
+          onKeyPress={handleKeyPress}
+          maxLength={10}
+        />
+      ) : null}
+
+      {type === "aadhaar" ? (
+        <input
+          type="aadhaar"
+          value={value}
+          onChange={handleChange}
+          className={appliedStyles}
+          placeholder={placeholder}
+          required={required}
+          disabled={disabled}
+          onFocus={handleFocus}
+          onKeyPress={handleKeyPress}
+          maxLength={12}
+        />
+      ) : null}
+
+      {type === "number" ? (
+        <input
+          type="number"
+          value={value}
+          onChange={handleChange}
+          className={appliedStyles}
+          placeholder={placeholder}
+          required={required}
+          disabled={disabled}
+          onFocus={handleFocus}
+          onKeyPress={handleKeyPress}
+          maxLength={10}
+        />
+      ) : null}
+
+      {type === "email" ? (
+        <input
+          type="email"
+          value={value}
+          onChange={handleChange}
+          className={appliedStyles}
+          placeholder={placeholder}
+          required={required}
+          disabled={disabled}
+          onFocus={handleFocus}
+        />
+      ) : null}
+
+      {type === "password" ? (
+        <input
+          type="password"
+          value={value}
+          onChange={handleChange}
+          className={appliedStyles}
+          placeholder={placeholder}
+          required={required}
+          disabled={disabled}
+          onFocus={handleFocus}
+        />
+      ) : null}
+
+      {type === "age" ? (
+        <input
+          type="text"
+          value={value}
+          onChange={handleChange}
+          className={appliedStyles}
+          placeholder={placeholder}
+          required={required}
+          disabled={disabled}
+          onFocus={handleFocus}
+          onKeyPress={handleKeyPress}
+          maxLength={2}
+        />
+      ) : null}
+
+      {maxChar && (
+        <p className="text-xs text-fg-neutral-tertiary text-end">
+          {value.length}/{maxChar} characters
         </p>
       )}
 
-      {/* Container with unified border */}
-      <div
-        className={`relative flex items-center ${stateClass} ${
-          sizeClasses[size as keyof typeof sizeClasses]
-        } rounded-sm overflow-hidden ${className} focus-within:ring-2  focus-within:ring-action-border-brand-normal focus-within:border-action-border-brand-normal`}
-      >
-        {/* Plus-Minus Controls with Input */}
-        
-        {inputType === "plus-minus" && (
-          <>
-            <button
-              type="button"
-              onClick={handleDecrement}
-              disabled={isDisabled}
-              className="px-3 py-2 bg-neutral-subtle text-fg-neutral-primary"
-            >
-              -
-            </button>
-            <input
-              className={`text-center bg-transparent outline-none ${plusMinusInputSizeClasses[size as keyof typeof plusMinusInputSizeClasses]}`}
-              disabled={isDisabled}
-              value={currentValue}
-              onChange={handleChange}
-            />
-            <button
-              type="button"
-              onClick={handleIncrement}
-              disabled={isDisabled}
-              className="px-3 py-2 bg-neutral-subtle text-fg-neutral-primary"
-            >
-              +
-            </button>
-          </>
-        )}
-        {/* Left Addon with Icon or Dropdown */}
-        {inputType === "addon-left" && (
-          <span
-            className={`bg-neutral-subtle text-fg-neutral-primary flex items-center ${
-              addonSizeClasses[size as keyof typeof addonSizeClasses]
-            }`}
-          >
-            {leftIcon && (
-              <span
-                className={`mr-1 -ml-1 text-fg-neutral-secondary ${
-                  iconSizeClasses[size as keyof typeof iconSizeClasses]
-                }`}
-              >
-                {leftIcon}
-              </span>
-            )}
-            {leftAddon}
-          </span>
-        )}
-
-        {inputType === "select-left" && (
-          <span
-            className={`bg-neutral-subtle text-fg-neutral-primary flex items-center ${
-              addonSizeClasses[size as keyof typeof addonSizeClasses]
-            }`}
-          >
-            <select className="border-none bg-transparent text-fg-neutral-primary focus:outline-none appearance-none w-full ">
-              {options?.map((option) => (
-                <option key={option.value} value={option.value}>
-                  {option.label}
-                </option>
-              ))}
-            </select>
-          </span>
-        )}
-
-        {inputType === "select-right" && (
-          <span
-            className={`absolute right-0 bg-neutral-subtle text-fg-neutral-primary flex items-center ${
-              addonSizeClasses[size as keyof typeof addonSizeClasses]
-            }`}
-          >
-            <select className="border-none bg-transparent text-fg-neutral-primary focus:outline-none appearance-none w-full">
-              {options?.map((option) => (
-                <option key={option.value} value={option.value}>
-                  {option.label}
-                </option>
-              ))}
-            </select>
-          </span>
-        )}
-
-        {/* Left Icon */}
-        {inputType === "basic" && leftIcon && (
-          <span
-            className={`absolute left-2 top-1/2 -translate-y-1/2 text-fg-neutral-secondary ${
-              iconSizeClasses[size as keyof typeof iconSizeClasses]
-            }`}
-          >
-            {leftIcon}
-          </span>
-        )}
-
-{/* Input Field */}
-{inputType !== "plus-minus" && (
-  <input
-    className={`flex-1 min-w-0 ${
-      (inputType === "addon-left" || inputType === "select-left") &&
-      leftIcon
-        ? "pl-2"
-        : inputType === "addon-left" || inputType === "select-left"
-        ? "pl-2"
-        : leftIcon
-        ? paddingClasses[size as keyof typeof paddingClasses]
-        : "pl-3"
-    } bg-transparent outline-none`}
-    disabled={isDisabled}
-    value={value}
-    {...props}
-  />
-)}
-
-        {/* Right Icon */}
-        {inputType === "basic" && rightIcon && (
-          <span
-            className={`absolute right-3 top-1/2 -translate-y-1/2 bg-action-brand-light_normal text-action-fg-brand-normal rounded-xs flex items-center justify-center ${
-              iconSizeClasses[size as keyof typeof iconSizeClasses]
-            }`}
-          >
-            {rightIcon}
-          </span>
-        )}
-
-        {/* Right Addon */}
-        {(inputType === "addon-right" || inputType === "select-right") && (
-          <span
-            className={` bg-neutral-subtle text-fg-neutral-primary flex items-center ${
-              addonSizeClasses[size as keyof typeof addonSizeClasses]
-            }`}
-          >
-            {rightAddon}
-          </span>
-        )}
-      </div>
+      {isTouched && error && (
+        <p className="text-xs text-fg-error-secondary flex justify-start place-items-center place-self-start gap-1 mt-0.5">
+          <Warning size={16} /> <div>{error}</div>
+        </p>
+      )}
     </div>
   );
 };
-
-export default Input;

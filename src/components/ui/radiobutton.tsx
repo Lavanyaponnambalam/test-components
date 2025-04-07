@@ -5,7 +5,7 @@ type RadioProps = React.InputHTMLAttributes<HTMLInputElement> & {
   isDisabled?: boolean;
   label?: string;
   description?: string;
-  applyBorder?: boolean; // Add a new prop to control the border
+  applyBorder?: boolean; 
 };
 
 const Radio: React.FC<RadioProps> = ({
@@ -28,8 +28,7 @@ const Radio: React.FC<RadioProps> = ({
     }
     return `border border-action-border-neutral-light_normal bg-action-neutral-light_normal
             hover:border-action-border-neutral-light_hover hover:bg-action-neutral-light_hover
-            checked:bg-action-brand-normal checked:border-action-border-brand-normal
-            focus:outline-none focus:ring-0 focus:outline-action-border-brand-normal`;
+            checked:bg-green-500 checked:border-green-500`;
   })();
 
   const containerClasses = description
@@ -51,7 +50,8 @@ const Radio: React.FC<RadioProps> = ({
           <input
             type="radio"
             id={id}
-            className={`${baseStyles} ${stateClasses} w-[20px] h-[20px] rounded-full border-[1.25px] appearance-none`}
+            className={`${baseStyles} ${stateClasses} w-[20px] h-[20px] rounded-full `}
+            style={{accentColor: "#4D8C52"}}
             disabled={isDisabled}
             {...props}
           />
