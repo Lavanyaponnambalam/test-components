@@ -1,5 +1,4 @@
 import Button from "./components/ui/button";
-import Search from "./components/ui/seacrh";
 import DatePicker from "./components/ui/date-picker";
 import Radio from "./components/ui/radiobutton";
 import Checkbox from "./components/ui/checkbox";
@@ -10,6 +9,7 @@ import { useState } from "react";
 import { InputField } from "./components/ui/input";
 import ImageUploader from "./components/ui/ImageUpload";
 import MultipleImageUploader from "./components/ui/MultipleImageUploader";
+import NumberInput from "./components/ui/number-input";
 
 export interface Field {
   image: File | null;
@@ -23,8 +23,17 @@ export interface Field {
   age: string;
   quantity: string;
   priority: string;
-  accept: string;
+  accept: string[];
   images: File[] | string[];
+  notifications: boolean;
+  select: boolean;
+  radioSelect: string;
+  dateSelect: string;
+  timeSelect: string;
+  dateField: string;
+  timeField: string;
+  datetime: string;
+  count: number;
 }
 const initialFormData: Field = {
   name: "",
@@ -38,13 +47,32 @@ const initialFormData: Field = {
   age: "",
   quantity: "",
   priority: "",
-  accept: "",
+  accept: [],
   images: [],
+  notifications: false,
+  select: false,
+  radioSelect: "",
+  dateSelect: "",
+  timeSelect: "",
+  dateField: "",
+  timeField: "",
+  datetime: "",
+  count: 0,
 };
 function App() {
   const [formData, setFormData] = useState<Field>({
     ...initialFormData,
   });
+
+  const [selected, setSelected] = useState<string>("option1");
+  const [attemptedSubmit, setAttemptedSubmit] = useState(false);
+  const checkboxOptions = ["option1", "option2", "option3", "yes"];
+  const [dateSelect, setDateSelect] = useState("");
+  const [timeSelect, setTimeSelect] = useState("");
+  const [dateField, setDateField] = useState("");
+  const [timeField, setTimeField] = useState("");
+  const [datetime, setDatetime] = useState("");
+  const [count, setCount] = useState(1);
 
   const handleFilesChange = (file: File | null, field: keyof Field) => {
     setFormData((prevData) => ({
@@ -55,7 +83,8 @@ function App() {
   };
 
   const handleSubmit = () => {
-    console.log(formData);
+    setAttemptedSubmit(true);
+    console.log("Submitted Form Data:", formData);
   };
 
   return (
@@ -132,32 +161,25 @@ function App() {
             required={true}
           />
           <div className="flex gap-3 ">
-            {/* <Checkbox
-              id="accept"
-              label="Terms & Conditions"
-              value="Accept"
-              description="Please accept terms to continue."
-              defaultChecked
-              isIndeterminate
-            /> */}
-
-            <Checkbox
-              id="checkbox"
-              description="Description text for option"
-              value="Yes"
-              onChange={(e) => console.log(e.target.value)}
-              applyBorder={true}
-            />
-            <Checkbox
-              id="No"
-              description="Description text for option"
-              isError={false}
-              isIndeterminate={false}
-              value="accept"
-              applyBorder={true}
-            />
-            
+            {checkboxOptions.map((option) => (
+              <Checkbox
+                key={option}
+                id={`checkbox-${option}`}
+                value={option}
+                checked={formData.accept.includes(option)}
+                onChange={(e) => {
+                  const checked = e.target.checked;
+                  setFormData((prev) => ({
+                    ...prev,
+                    accept: checked
+                      ? [...prev.accept, option]
+                      : prev.accept.filter((val) => val !== option),
+                  }));
+                }}
+              />
+            ))}
           </div>
+
           <Dropdown
             label="Options"
             values={["Option1", "Option2", "Option3"]}
@@ -176,6 +198,108 @@ function App() {
             disabled={false}
           />
 
+          <div>
+            <Switch
+              label="Enable Notifications"
+              value="Option1"
+              checked={formData.notifications}
+              onChange={(val) => {
+                setFormData((prevData) => ({
+                  ...prevData,
+                  notifications: val,
+                }));
+                console.log("Notifications toggled:", val);
+              }}
+              description="Receive email and app notifications"
+            />
+            <Switch
+              value="Option1"
+              checked={formData.select}
+              onChange={(val) => {
+                setFormData((prev) => ({ ...prev, select: val }));
+                console.log("select toggled:", val);
+              }}
+              description="Receive updates"
+              applyBorder={true}
+            />
+          </div>
+          <NumberInput
+            value={formData.count}
+            onChange={(val) =>
+              setFormData((prevData) => ({ ...prevData, count: val }))
+            }
+            min={0}
+            max={10}
+          />
+
+          <DatePicker
+            type="datetime-picker"
+            label="Select Date"
+            value={formData.datetime}
+            onChange={(val) =>
+              setFormData((prev) => ({ ...prev, datetime: val }))
+            }
+          />
+
+          <DatePicker
+            type="date-select"
+            label="Select Date"
+            value={formData.dateSelect}
+            onChange={(val) =>
+              setFormData((prev) => ({ ...prev, dateSelect: val }))
+            }
+          />
+
+          <DatePicker
+            type="time-select"
+            label="Select Time"
+            value={formData.timeSelect}
+            onChange={(val) =>
+              setFormData((prev) => ({ ...prev, timeSelect: val }))
+            }
+          />
+          <DatePicker
+            type="date-field"
+            label="Select Date"
+            value={formData.dateField}
+            onChange={(val) =>
+              setFormData((prev) => ({ ...prev, dateField: val }))
+            }
+          />
+
+          <DatePicker
+            type="time-field"
+            label="Select Time"
+            value={formData.timeField}
+            onChange={(val) =>
+              setFormData((prev) => ({ ...prev, timeField: val }))
+            }
+          />
+
+          <div>
+            <Radio
+              id="option1"
+              name="radioGroup"
+              value="option1"
+              checked={formData.radioSelect === "option1"}
+              onChange={() =>
+                setFormData((prev) => ({ ...prev, radioSelect: "option1" }))
+              }
+              description="This is option 1"
+            />
+
+            <Radio
+              id="option2"
+              name="radioGroup"
+              value="option2"
+              checked={formData.radioSelect === "option2"}
+              onChange={() =>
+                setFormData((prev) => ({ ...prev, radioSelect: "option2" }))
+              }
+              description="This is option 2"
+            />
+          </div>
+
           <Button category="primary" size="md" onClick={handleSubmit}>
             Button
           </Button>
@@ -183,28 +307,28 @@ function App() {
         </div>
 
         <div className=" grid grid-cols-4 gap-5">
-          <Button category="primary" size="lg">
+          <Button category="primary" size="lg" onClick={handleSubmit}>
             Button
           </Button>
-          <Button category="primary-soft" size="lg">
+          <Button category="primary-soft" size="lg" onClick={handleSubmit}>
             Button
           </Button>
-          <Button category="secondary" size="lg">
+          <Button category="secondary" size="lg" onClick={handleSubmit}>
             Button
           </Button>
-          <Button category="neutral" size="lg">
+          <Button category="neutral" size="lg" onClick={handleSubmit}>
             Button
           </Button>
-          <Button category="tertiary" size="lg">
+          <Button category="tertiary" size="lg" onClick={handleSubmit}>
             Button
           </Button>
-          <Button category="danger" size="lg">
+          <Button category="danger" size="lg" onClick={handleSubmit}>
             Button
           </Button>
-          <Button category="danger-soft" size="lg">
+          <Button category="danger-soft" size="lg" onClick={handleSubmit}>
             Button
           </Button>
-          <Button category="primary" size="lg" disabled>
+          <Button category="primary" size="lg" disabled onClick={handleSubmit}>
             Button
           </Button>
         </div>
@@ -708,7 +832,6 @@ function App() {
           </div>
         </div>
 
-
         <div className="flex gap-5 mb-8">
           <div className="space-y-4 p-8">
             {/* <div className="flex gap-5 mb-8">
@@ -828,12 +951,21 @@ function App() {
           </div>
           <div className="space-y-2">
             <Checkbox
-              id="checkbox"
-              isError={false}
-              isDisabled={false}
-              isIndeterminate={false}
-              value="accept"
+              id="accept-checkbox"
+              label="Accept Terms"
+              description="You must accept terms and conditions"
+              checked={formData.accept === "Yes"}
+              value="Yes"
+              onChange={(e) => {
+                setFormData((prev) => ({
+                  ...prev,
+                  accept: e.target.checked ? "Yes" : "",
+                }));
+              }}
+              isError={attemptedSubmit && formData.accept !== "Yes"}
+              applyBorder={true}
             />
+
             <Checkbox
               id="checkbox"
               description="Description text for option"

@@ -118,7 +118,7 @@ const ImageUploader = <T,>({
                     : "cursor-pointer text-fg-neutral-secondary"
                 }`}
               >
-                Choose file to upload
+                Choose image to upload
               </span>
             </label>
 

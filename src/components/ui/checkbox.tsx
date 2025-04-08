@@ -8,10 +8,10 @@ type CheckboxProps = Omit<React.InputHTMLAttributes<HTMLInputElement>, 'value'> 
   description?: string;
   applyBorder?: boolean;
   isIndeterminate?: boolean;
-  value?: string | number;
+  value: string | number;
   checked?: boolean; // controlled
   defaultChecked?: boolean; // uncontrolled
-  onChange?: (e: React.ChangeEvent<HTMLInputElement>) => void;
+  onChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
 };
 
 const Checkbox: React.FC<CheckboxProps> = ({
@@ -59,7 +59,7 @@ const Checkbox: React.FC<CheckboxProps> = ({
     if (currentChecked || isIndeterminate) {
       return 'bg-action-brand-normal text-action-fg-base-white';
     }
-    return 'bg-white border-gray-400 hover:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-400';
+    return 'bg-white border-gray-400 hover:border-action-border-neutral-light focus:outline-none focus:ring-2';
   })();
 
   const containerClasses = description
@@ -124,3 +124,5 @@ const Checkbox: React.FC<CheckboxProps> = ({
 };
 
 export default Checkbox;
+
+
